@@ -2,15 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Portfolio 2026–27</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <iframe
-    src="portfolio26-27.pdf"
-    title="Portfolio PDF"
-    class="pdf-viewer"
-  ></iframe>
+  <div id="pdf-container" aria-label="Portfolio PDF"></div>
+  <div id="loading" class="loading">Loading portfolio…</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    var container = document.getElementById('pdf-container');
+    var loading = document.getElementById('loading');
+
+    function renderPage(pdf, pageNum) {
+      return pdf.getPage(pageNum).then(function (page) {
+        var containerWidth = container.clientWidth;
+        var viewport = page.getViewport({ scale: 1 });
+        var scale = containerWidth / viewport.width;
+        var scaledViewport = page.getViewport({ scale: scale });
+        var pixelRatio = window.devicePixelRatio || 1;
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.width = Math.floor(scaledViewport.width * pixelRatio);
+        canvas.height = Math.floor(scaledViewport.height * pixelRatio);
+        canvas.style.width = scaledViewport.width + 'px';
+        canvas.style.height = scaledViewport.height + 'px';
+        canvas.setAttribute('role', 'img');
+        canvas.setAttribute('aria-label', 'Page ' + pageNum + ' of portfolio');
+        var renderContext = {
+          canvasContext: ctx,
+          viewport: scaledViewport,
+          enableWebGL: false,
+          renderInteractiveForms: false
+        };
+        ctx.scale(pixelRatio, pixelRatio);
+        return page.render(renderContext).promise.then(function () {
+          return canvas;
+        });
+      });
+    }
+
+    function loadPdf() {
+      pdfjsLib.getDocument('portfolio26-27.pdf').promise.then(function (pdf) {
+        loading.classList.add('loaded');
+        var numPages = pdf.numPages;
+        var chain = Promise.resolve();
+        for (var i = 1; i <= numPages; i++) {
+          (function (pageNum) {
+            chain = chain.then(function () {
+              return renderPage(pdf, pageNum);
+            }).then(function (canvas) {
+              container.appendChild(canvas);
+            });
+          })(i);
+        }
+        return chain;
+      }).catch(function (err) {
+        loading.textContent = 'Unable to load PDF. ';
+        var a = document.createElement('a');
+        a.href = 'portfolio26-27.pdf';
+        a.textContent = 'Open PDF instead.';
+        a.setAttribute('target', '_blank');
+        loading.appendChild(a);
+        loading.classList.add('loaded');
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadPdf);
+    } else {
+      loadPdf();
+    }
+  </script>
 </body>
 </html>
