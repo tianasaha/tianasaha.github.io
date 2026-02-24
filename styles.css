@@ -1,4 +1,4 @@
-/* PDF rendered in-page so it’s viewable and scrollable on mobile and desktop */
+/* PDF rendered on white background — no gray viewer chrome */
 
 html {
   -webkit-text-size-adjust: 100%;
@@ -8,7 +8,7 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background: #888;
+  background: #fff;
 }
 
 #pdf-container {
@@ -19,13 +19,13 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 0;
+  background: #fff;
 }
 
 #pdf-container canvas {
   display: block;
   max-width: 100%;
   height: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .loading {
@@ -37,8 +37,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0ede8;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #fff;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 1rem;
   color: #333;
   z-index: 10;

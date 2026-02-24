@@ -20,122 +20,64 @@
 
       var container = document.getElementById("pdf-container");
       var loading = document.getElementById("loading");
-      var pdfDoc = null;
-      var pageCanvases = [];
+      var RES = 3;
 
-      function getZoomScale() {
-        if (
-          window.visualViewport &&
-          typeof window.visualViewport.scale === "number"
-        ) {
-          return Math.max(1, window.visualViewport.scale);
-        }
-        return 1;
-      }
-
-      function renderPageToCanvas(pdf, pageNum, canvas) {
+      function renderPage(pdf, pageNum) {
         return pdf.getPage(pageNum).then(function (page) {
-          var containerWidth = container.clientWidth;
+          var w = container.clientWidth;
           var viewport = page.getViewport({ scale: 1 });
-          var displayScale = containerWidth / viewport.width;
-          var zoomScale = getZoomScale();
+          var scale = (w / viewport.width) * RES;
+          var scaledViewport = page.getViewport({ scale: scale });
           var pixelRatio = window.devicePixelRatio || 1;
-          var renderScale = displayScale * zoomScale * pixelRatio;
-          var scaledViewport = page.getViewport({ scale: renderScale });
-
-          canvas.width = Math.floor(scaledViewport.width);
-          canvas.height = Math.floor(scaledViewport.height);
-          canvas.style.width = viewport.width * displayScale + "px";
-          canvas.style.height = viewport.height * displayScale + "px";
+          var canvas = document.createElement("canvas");
+          canvas.width = Math.floor(scaledViewport.width * pixelRatio);
+          canvas.height = Math.floor(scaledViewport.height * pixelRatio);
+          canvas.style.width = scaledViewport.width / RES + "px";
+          canvas.style.height = scaledViewport.height / RES + "px";
           canvas.setAttribute("role", "img");
-          canvas.setAttribute(
-            "aria-label",
-            "Page " + pageNum + " of portfolio",
-          );
-
+          canvas.setAttribute("aria-label", "Page " + pageNum + " of portfolio");
+          var ctx = canvas.getContext("2d");
           var renderContext = {
-            canvasContext: canvas.getContext("2d"),
+            canvasContext: ctx,
             viewport: scaledViewport,
             enableWebGL: false,
             renderInteractiveForms: false,
           };
-          return page.render(renderContext).promise;
-        });
-      }
-
-      function renderAllPages() {
-        if (!pdfDoc) return;
-        var zoomScale = getZoomScale();
-        var chain = Promise.resolve();
-        pageCanvases.forEach(function (item) {
-          chain = chain.then(function () {
-            return renderPageToCanvas(pdfDoc, item.pageNum, item.canvas);
+          ctx.scale(pixelRatio, pixelRatio);
+          return page.render(renderContext).promise.then(function () {
+            return canvas;
           });
         });
-        return chain;
       }
 
-      function loadPdf() {
-        pdfjsLib
-          .getDocument("portfolio26-27.pdf")
-          .promise.then(function (pdf) {
-            pdfDoc = pdf;
-            loading.classList.add("loaded");
-            var numPages = pdf.numPages;
-            var chain = Promise.resolve();
-            for (var i = 1; i <= numPages; i++) {
-              (function (pageNum) {
-                var canvas = document.createElement("canvas");
-                canvas.setAttribute("data-page", String(pageNum));
-                pageCanvases.push({ canvas: canvas, pageNum: pageNum });
-                chain = chain
-                  .then(function () {
-                    return renderPageToCanvas(pdf, pageNum, canvas);
-                  })
-                  .then(function () {
-                    container.appendChild(canvas);
-                  });
-              })(i);
-            }
-            return chain;
-          })
-          .then(function () {
-            var debounceTimer = null;
-            function scheduleRerender() {
-              if (debounceTimer) clearTimeout(debounceTimer);
-              debounceTimer = setTimeout(function () {
-                debounceTimer = null;
-                renderAllPages();
-              }, 120);
-            }
-            if (window.visualViewport) {
-              window.visualViewport.addEventListener(
-                "resize",
-                scheduleRerender,
-              );
-              window.visualViewport.addEventListener(
-                "scroll",
-                scheduleRerender,
-              );
-            }
-            window.addEventListener("resize", scheduleRerender);
-          })
-          .catch(function (err) {
-            loading.textContent = "Unable to load PDF. ";
-            var a = document.createElement("a");
-            a.href = "portfolio26-27.pdf";
-            a.textContent = "Open PDF instead.";
-            a.setAttribute("target", "_blank");
-            loading.appendChild(a);
-            loading.classList.add("loaded");
-          });
-      }
+      pdfjsLib
+        .getDocument("portfolio26-27.pdf")
+        .promise.then(function (pdf) {
+          loading.classList.add("loaded");
+          var chain = Promise.resolve();
+          for (var i = 1; i <= pdf.numPages; i++) {
+            (function (n) {
+              chain = chain
+                .then(function () {
+                  return renderPage(pdf, n);
+                })
+                .then(function (canvas) {
+                  container.appendChild(canvas);
+                });
+            })(i);
+          }
+          return chain;
+        })
+        .catch(function () {
+          loading.textContent = "Unable to load PDF. ";
+          var a = document.createElement("a");
+          a.href = "portfolio26-27.pdf";
+          a.textContent = "Open PDF instead.";
+          a.setAttribute("target", "_blank");
+          loading.appendChild(a);
+          loading.classList.add("loaded");
+        });
 
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", loadPdf);
-      } else {
-        loadPdf();
-      }
     </script>
   </body>
 </html>
