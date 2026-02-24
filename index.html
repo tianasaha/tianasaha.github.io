@@ -10,74 +10,10 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div id="pdf-container" aria-label="Portfolio PDF"></div>
-    <div id="loading" class="loading">Loading portfolio…</div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-      var container = document.getElementById("pdf-container");
-      var loading = document.getElementById("loading");
-      var RES = 3;
-
-      function renderPage(pdf, pageNum) {
-        return pdf.getPage(pageNum).then(function (page) {
-          var w = container.clientWidth;
-          var viewport = page.getViewport({ scale: 1 });
-          var scale = (w / viewport.width) * RES;
-          var scaledViewport = page.getViewport({ scale: scale });
-          var pixelRatio = window.devicePixelRatio || 1;
-          var canvas = document.createElement("canvas");
-          canvas.width = Math.floor(scaledViewport.width * pixelRatio);
-          canvas.height = Math.floor(scaledViewport.height * pixelRatio);
-          canvas.style.width = scaledViewport.width / RES + "px";
-          canvas.style.height = scaledViewport.height / RES + "px";
-          canvas.setAttribute("role", "img");
-          canvas.setAttribute("aria-label", "Page " + pageNum + " of portfolio");
-          var ctx = canvas.getContext("2d");
-          var renderContext = {
-            canvasContext: ctx,
-            viewport: scaledViewport,
-            enableWebGL: false,
-            renderInteractiveForms: false,
-          };
-          ctx.scale(pixelRatio, pixelRatio);
-          return page.render(renderContext).promise.then(function () {
-            return canvas;
-          });
-        });
-      }
-
-      pdfjsLib
-        .getDocument("portfolio26-27.pdf")
-        .promise.then(function (pdf) {
-          loading.classList.add("loaded");
-          var chain = Promise.resolve();
-          for (var i = 1; i <= pdf.numPages; i++) {
-            (function (n) {
-              chain = chain
-                .then(function () {
-                  return renderPage(pdf, n);
-                })
-                .then(function (canvas) {
-                  container.appendChild(canvas);
-                });
-            })(i);
-          }
-          return chain;
-        })
-        .catch(function () {
-          loading.textContent = "Unable to load PDF. ";
-          var a = document.createElement("a");
-          a.href = "portfolio26-27.pdf";
-          a.textContent = "Open PDF instead.";
-          a.setAttribute("target", "_blank");
-          loading.appendChild(a);
-          loading.classList.add("loaded");
-        });
-
-    </script>
+    <iframe
+      src="portfolio26-27.pdf#toolbar=0"
+      title="Portfolio PDF"
+      class="pdf-viewer"
+    ></iframe>
   </body>
 </html>
