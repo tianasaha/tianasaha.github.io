@@ -20,21 +20,31 @@
 
       var container = document.getElementById("pdf-container");
       var loading = document.getElementById("loading");
+      var pdfDoc = null;
+      var pageCanvases = [];
 
-      var RESOLUTION_MULTIPLIER = 3;
+      function getZoomScale() {
+        if (
+          window.visualViewport &&
+          typeof window.visualViewport.scale === "number"
+        ) {
+          return Math.max(1, window.visualViewport.scale);
+        }
+        return 1;
+      }
 
-      function renderPage(pdf, pageNum) {
+      function renderPageToCanvas(pdf, pageNum, canvas) {
         return pdf.getPage(pageNum).then(function (page) {
           var containerWidth = container.clientWidth;
           var viewport = page.getViewport({ scale: 1 });
           var displayScale = containerWidth / viewport.width;
-          var renderScale = displayScale * RESOLUTION_MULTIPLIER;
-          var scaledViewport = page.getViewport({ scale: renderScale });
+          var zoomScale = getZoomScale();
           var pixelRatio = window.devicePixelRatio || 1;
-          var canvas = document.createElement("canvas");
-          var ctx = canvas.getContext("2d");
-          canvas.width = Math.floor(scaledViewport.width * pixelRatio);
-          canvas.height = Math.floor(scaledViewport.height * pixelRatio);
+          var renderScale = displayScale * zoomScale * pixelRatio;
+          var scaledViewport = page.getViewport({ scale: renderScale });
+
+          canvas.width = Math.floor(scaledViewport.width);
+          canvas.height = Math.floor(scaledViewport.height);
           canvas.style.width = viewport.width * displayScale + "px";
           canvas.style.height = viewport.height * displayScale + "px";
           canvas.setAttribute("role", "img");
@@ -42,38 +52,73 @@
             "aria-label",
             "Page " + pageNum + " of portfolio",
           );
+
           var renderContext = {
-            canvasContext: ctx,
+            canvasContext: canvas.getContext("2d"),
             viewport: scaledViewport,
             enableWebGL: false,
             renderInteractiveForms: false,
           };
-          ctx.scale(pixelRatio, pixelRatio);
-          return page.render(renderContext).promise.then(function () {
-            return canvas;
+          return page.render(renderContext).promise;
+        });
+      }
+
+      function renderAllPages() {
+        if (!pdfDoc) return;
+        var zoomScale = getZoomScale();
+        var chain = Promise.resolve();
+        pageCanvases.forEach(function (item) {
+          chain = chain.then(function () {
+            return renderPageToCanvas(pdfDoc, item.pageNum, item.canvas);
           });
         });
+        return chain;
       }
 
       function loadPdf() {
         pdfjsLib
           .getDocument("portfolio26-27.pdf")
           .promise.then(function (pdf) {
+            pdfDoc = pdf;
             loading.classList.add("loaded");
             var numPages = pdf.numPages;
             var chain = Promise.resolve();
             for (var i = 1; i <= numPages; i++) {
               (function (pageNum) {
+                var canvas = document.createElement("canvas");
+                canvas.setAttribute("data-page", String(pageNum));
+                pageCanvases.push({ canvas: canvas, pageNum: pageNum });
                 chain = chain
                   .then(function () {
-                    return renderPage(pdf, pageNum);
+                    return renderPageToCanvas(pdf, pageNum, canvas);
                   })
-                  .then(function (canvas) {
+                  .then(function () {
                     container.appendChild(canvas);
                   });
               })(i);
             }
             return chain;
+          })
+          .then(function () {
+            var debounceTimer = null;
+            function scheduleRerender() {
+              if (debounceTimer) clearTimeout(debounceTimer);
+              debounceTimer = setTimeout(function () {
+                debounceTimer = null;
+                renderAllPages();
+              }, 120);
+            }
+            if (window.visualViewport) {
+              window.visualViewport.addEventListener(
+                "resize",
+                scheduleRerender,
+              );
+              window.visualViewport.addEventListener(
+                "scroll",
+                scheduleRerender,
+              );
+            }
+            window.addEventListener("resize", scheduleRerender);
           })
           .catch(function (err) {
             loading.textContent = "Unable to load PDF. ";
