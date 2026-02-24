@@ -37,8 +37,8 @@ body {
   display: none;
 }
 
-/* Mobile: PDF.js viewer — width fixed to phone, scrollable */
-@media (max-width: 768px) {
+/* Mobile/tablet: PDF.js viewer — width fixed to screen, scrollable */
+@media (max-width: 1024px) {
   .desktop-view {
     display: none;
   }
@@ -49,10 +49,12 @@ body {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     background: #888;
+    width: 100%;
   }
   #pdf-container {
+    width: 100%;
     max-width: 100%;
-    margin: 0 auto;
+    margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -62,6 +64,7 @@ body {
   #pdf-container canvas {
     display: block;
     max-width: 100%;
+    width: 100%;
     height: auto;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
@@ -72,7 +75,8 @@ body {
     align-items: center;
     justify-content: center;
     background: #f0ede8;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 1rem;
     color: #333;
     z-index: 10;
