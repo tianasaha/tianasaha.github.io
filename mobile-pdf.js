@@ -1,4 +1,7 @@
 (function () {
+  var PDF_URL = "portfolio.pdf";
+  var RESOLUTION_MULTIPLIER = 3;
+
   if (!window.matchMedia("(max-width: 1024px)").matches) return;
 
   var container = document.getElementById("pdf-container");
@@ -28,15 +31,16 @@
       var w = container.clientWidth || getViewportWidth();
       if (w < 1) w = getViewportWidth();
       var viewport = page.getViewport({ scale: 1 });
-      var scale = w / viewport.width;
-      var scaledViewport = page.getViewport({ scale: scale });
+      var displayScale = w / viewport.width;
+      var renderScale = displayScale * RESOLUTION_MULTIPLIER;
+      var scaledViewport = page.getViewport({ scale: renderScale });
       var pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
       var canvas = document.createElement("canvas");
       var ctx = canvas.getContext("2d");
       canvas.width = Math.floor(scaledViewport.width * pixelRatio);
       canvas.height = Math.floor(scaledViewport.height * pixelRatio);
-      canvas.style.width = scaledViewport.width + "px";
-      canvas.style.height = scaledViewport.height + "px";
+      canvas.style.width = viewport.width * displayScale + "px";
+      canvas.style.height = viewport.height * displayScale + "px";
       canvas.setAttribute("role", "img");
       canvas.setAttribute("aria-label", "Page " + pageNum);
       var renderContext = {
@@ -75,14 +79,16 @@
       .then(function () {
         window.pdfjsLib.GlobalWorkerOptions.workerSrc =
           "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-        return window.pdfjsLib.getDocument("portfolio26-27.pdf").promise;
+        return window.pdfjsLib.getDocument(PDF_URL).promise;
       })
       .then(function (pdf) {
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
             runRender(pdf).catch(function () {
               loadingEl.innerHTML =
-                'Unable to load PDF. <a href="portfolio26-27.pdf" target="_blank" rel="noopener">Open PDF</a>';
+                'Unable to load PDF. <a href="' +
+                PDF_URL +
+                '" target="_blank" rel="noopener">Open PDF</a>';
               loadingEl.classList.add("loaded");
             });
           });
@@ -90,7 +96,9 @@
       })
       .catch(function () {
         loadingEl.innerHTML =
-          'Unable to load PDF. <a href="portfolio26-27.pdf" target="_blank" rel="noopener">Open PDF</a>';
+          'Unable to load PDF. <a href="' +
+          PDF_URL +
+          '" target="_blank" rel="noopener">Open PDF</a>';
         loadingEl.classList.add("loaded");
       });
   }

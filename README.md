@@ -1,73 +1,45 @@
-# Architecture Portfolio — GitHub Pages
+# Tiana Saha — Architecture Portfolio (GitHub Pages)
 
-A minimal, professional portfolio site for an architecture student (CMU). Built as static HTML/CSS/JS so it runs on **GitHub Pages** with no build step.
+Static portfolio site that displays the PDF full-screen. Works on desktop (native PDF viewer) and mobile (PDF.js).
 
-## What’s in the repo
+## Files
 
-- **`index.html`** — Single-page site: Hero, About, Education, Experience, Projects, Contact
-- **`styles.css`** — Layout and typography (architect-themed, responsive)
-- **`script.js`** — Nav toggle (mobile), smooth scroll, footer year
-- **`portfolio26-27.pdf`** — Reference PDF (content and structure mirrored on the site)
+| File | Purpose |
+|------|---------|
+| `index.html` | Page layout — iframe on desktop, mobile container on phone/tablet |
+| `styles.css` | Full-viewport layout and mobile styles |
+| `mobile-pdf.js` | PDF.js viewer for screens ≤ 1024px (fit-to-width, scrollable) |
+| `portfolio.pdf` | Deployed portfolio (copy of *Tiana Saha - CMU Architecture Portfolio.pdf*) |
+| `.nojekyll` | Tells GitHub Pages not to run Jekyll |
 
-## Deploy to GitHub Pages (so it shows when you click the portfolio link)
+## Crisp detail when zooming
 
-### 1. Create the repo on GitHub
+- **Desktop / laptop:** The browser’s native PDF viewer handles zoom (pinch or Ctrl +/-). Vector PDF stays sharp at any zoom.
+- **Mobile / tablet:** PDF.js renders each page at 3× resolution so pinch-zoom stays reasonably sharp without re-rendering on every zoom change.
 
-1. Go to [github.com/new](https://github.com/new).
-2. Name the repo (e.g. `username.github.io` for a **user/org site**, or any name like `portfolio` for a **project site**).
-3. Choose **Public**, leave “Add a README” unchecked if you’re pushing this folder.
-4. Click **Create repository**.
+## Deploy / update
 
-### 2. Push this folder
-
-From your machine, in the folder that contains `index.html`:
+From this folder:
 
 ```bash
 cd "/Users/deepmangrulkar/Desktop/deep/tin tin"
 
-git init
+# After updating the source PDF, refresh portfolio.pdf:
+cp "Tiana Saha - CMU Architecture Portfolio.pdf" portfolio.pdf
+
 git add .
-git commit -m "Initial portfolio site"
-git branch -M main
-git remote add origin https://github.com/USERNAME/REPO.git
-git push -u origin main
+git commit -m "Update portfolio PDF"
+git push
 ```
 
-Replace `USERNAME` and `REPO` with the GitHub username and repo name.
+**GitHub Pages:** Repo → **Settings** → **Pages** → Deploy from branch **main**, folder **/ (root)**.
 
-### 3. Turn on GitHub Pages
+Site URL (example): `https://tianasaha.github.io`
 
-1. On the repo page: **Settings** → **Pages** (left sidebar).
-2. Under **Source**: choose **Deploy from a branch**.
-3. **Branch**: `main` (or `master`), folder **/ (root)**.
-4. Click **Save**.
+## Updating the PDF later
 
-The site will be at:
+1. Replace `Tiana Saha - CMU Architecture Portfolio.pdf` with the new file (same name or update the `cp` command).
+2. Run: `cp "Tiana Saha - CMU Architecture Portfolio.pdf" portfolio.pdf`
+3. Commit and push both files (or just `portfolio.pdf` if you only deploy that).
 
-- **User/org site** (`username.github.io`):  
-  **https://username.github.io**
-- **Project site** (e.g. repo name `portfolio`):  
-  **https://username.github.io/portfolio**
-
-It may take 1–2 minutes to appear. If you see a 404, wait a bit and refresh.
-
-## Customize content
-
-- **Name / title**: In `index.html`, update the hero (`hero-title`, `hero-subtitle`) and footer.
-- **About**: Edit the `.about` section text.
-- **Education / Experience**: Edit the `.timeline` items; add or remove `<li class="timeline-item">` blocks.
-- **Projects**: Edit each `.project` (title, tag, description). Replace `.project-placeholder` divs with real images, e.g.  
-  `<img src="assets/chand-baori-axon.jpg" alt="Chand Baori axonometric">`  
-  and add an `assets` folder with images exported from the PDF or scans.
-- **Contact**: Update email, LinkedIn, and location in the `#contact` section.
-
-## Optional: add images
-
-1. Create an `assets` (or `images`) folder in the repo.
-2. Export images from the PDF or add photos, then add `<img>` tags in `index.html` where the placeholders are.
-
-## Tech notes
-
-- No Jekyll or other generator required; GitHub Pages serves the files as-is.
-- Fonts load from Google Fonts (Cormorant Garamond, Inter).
-- Layout is responsive; nav collapses to a hamburger on small screens.
+The site references **`portfolio.pdf`** (no spaces) so URLs work reliably on GitHub Pages.
