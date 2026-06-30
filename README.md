@@ -1,21 +1,19 @@
 # Tiana Saha — Architecture Portfolio (GitHub Pages)
 
-Static portfolio site that displays the PDF full-screen. Works on desktop (native PDF viewer) and mobile (PDF.js).
+Static portfolio site. **Desktop:** embedded native PDF viewer. **Phone/tablet:** opens `portfolio.pdf` directly in the browser’s built-in viewer (sharp zoom, no loading screen).
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `index.html` | Page layout — iframe on desktop, mobile container on phone/tablet |
-| `styles.css` | Full-viewport layout and mobile styles |
-| `mobile-pdf.js` | PDF.js viewer for screens ≤ 1024px (fit-to-width, scrollable) |
-| `portfolio.pdf` | Deployed portfolio (copy of *Tiana Saha - CMU Architecture Portfolio.pdf*) |
+| `index.html` | Desktop: full-screen iframe. Mobile: redirects to `portfolio.pdf` |
+| `styles.css` | Full-viewport layout |
+| `portfolio.pdf` | Portfolio (copy of *Tiana Saha - CMU Architecture Portfolio.pdf*) |
 | `.nojekyll` | Tells GitHub Pages not to run Jekyll |
 
 ## Crisp detail when zooming
 
-- **Desktop / laptop:** The browser’s native PDF viewer handles zoom (pinch or Ctrl +/-). Vector PDF stays sharp at any zoom.
-- **Mobile / tablet:** PDF.js renders each page at 3× resolution so pinch-zoom stays reasonably sharp without re-rendering on every zoom change.
+Both desktop and mobile use the **browser’s native PDF viewer** (vector PDF), so pinch-zoom and zoom controls stay sharp.
 
 ## Deploy / update
 

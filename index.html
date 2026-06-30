@@ -8,20 +8,19 @@
     />
     <title>Tiana Saha | Architecture Portfolio</title>
     <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        if (window.matchMedia("(max-width: 1024px)").matches) {
+          window.location.replace("portfolio.pdf#view=FitH");
+        }
+      })();
+    </script>
   </head>
   <body>
-    <div class="desktop-view">
-      <iframe
-        src="portfolio.pdf#view=FitH"
-        title="Tiana Saha — CMU Architecture Portfolio"
-        class="pdf-viewer"
-      ></iframe>
-    </div>
-    <div class="mobile-view" aria-hidden="true">
-      <div id="pdf-container" aria-label="Portfolio PDF"></div>
-      <div id="loading" class="loading">Loading portfolio…</div>
-    </div>
-
-    <script src="mobile-pdf.js"></script>
+    <iframe
+      src="portfolio.pdf#view=FitH"
+      title="Tiana Saha — CMU Architecture Portfolio"
+      class="pdf-viewer"
+    ></iframe>
   </body>
 </html>

@@ -1,4 +1,4 @@
-/* Full-viewport native PDF — fit the entire screen (desktop) */
+/* Full-viewport native PDF viewer (desktop) */
 
 * {
   box-sizing: border-box;
@@ -25,67 +25,4 @@ body {
   min-height: 100%;
   border: none;
   display: block;
-}
-
-/* Desktop: iframe only */
-.desktop-view {
-  display: block;
-  position: fixed;
-  inset: 0;
-}
-.mobile-view {
-  display: none;
-}
-
-/* Mobile/tablet: PDF.js viewer — width fixed to screen, scrollable */
-@media (max-width: 1024px) {
-  .desktop-view {
-    display: none;
-  }
-  .mobile-view {
-    display: block;
-    position: fixed;
-    inset: 0;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    background: #888;
-    width: 100%;
-  }
-  #pdf-container {
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-  }
-  #pdf-container canvas {
-    display: block;
-    max-width: 100%;
-    width: 100%;
-    height: auto;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-  .loading {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f0ede8;
-    font-family:
-      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 1rem;
-    color: #333;
-    z-index: 10;
-  }
-  .loading.loaded {
-    display: none;
-  }
-  .loading a {
-    color: #06c;
-    margin-left: 0.25em;
-  }
 }
